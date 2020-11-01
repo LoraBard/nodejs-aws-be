@@ -1,0 +1,69 @@
+openapi: 3.0.0
+info:
+  title: products-service-api
+  version: v1.0
+paths:
+  '/products':
+    get:
+      description: Get all products
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: 'Internal server error'
+  '/products/{id}':
+    get:
+      description: Get product by id
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: string id type
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/Product'
+        '404':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: 'Product not found'
+        '500':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: 'Internal server error'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        count:
+          type: integer
+        description:
+          type: string
+        id:
+          type: integer
+        price:
+          type: integer
+        title:
+          type: string
