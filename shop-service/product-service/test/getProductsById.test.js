@@ -1,5 +1,6 @@
 import { getProductsById } from "../handlers/getProductsById";
 import mockData from "../mockData";
+import { INTERNAL_SERVER_ERROR } from "../constants";
 
 describe("product service", () => {
   let event;
@@ -12,35 +13,38 @@ describe("product service", () => {
     };
   });
 
-  it("return well-formed response", () => {
-    getProductsById(event).then((result) => {
-      expect(result.statusCode).toEqual(200);
-      expect(result.headers).toEqual({ "Content-Type": "application/json" });
-      expect(typeof result.body).toEqual("string");
-    });
+  it("return well-formed response", async () => {
+    const response = await getProductsById(event);
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.headers).toEqual({ "Content-Type": "application/json" });
+    expect(typeof response.body).toEqual("string");
   });
 
-  it("return status code 404", () => {
+  it("return status code 404", async () => {
     event.pathParameters = {};
-    getProductsById(event).then((result) => {
-      expect(result.statusCode).toEqual(404);
-      expect(result.headers).toEqual({ "Content-Type": "application/json" });
-      expect(typeof result.body).toEqual("string");
-    });
+    const response = await getProductsById(event);
+
+    expect(response.statusCode).toEqual(400);
+    expect(response.headers).toEqual({ "Content-Type": "application/json" });
+    expect(typeof response.body).toEqual("string");
   });
 
-  it("return status code 500 on error", () => {
+  it("return status code 500 on error", async () => {
     jest.mock("../productsService/index.ts", () => {
       return {
-        getProductsList: () => {
+        getProductById: () => {
           throw Error("ERROR");
         },
       };
     });
-    getProductsById(event).catch((error) => {
-      expect(error.statusCode).toEqual(500);
-      expect(error.headers).toEqual({ "Content-Type": "application/json" });
-      expect(typeof error.body).toEqual("string");
-    });
+
+    try {
+      await getProductsById(event);
+    } catch {
+      expect(response.statusCode).toEqual(500);
+      expect(response.headers).toEqual({ "Content-Type": "application/json" });
+      expect(response.body).toEqual(`${INTERNAL_SERVER_ERROR}. ERROR`);
+    }
   });
 });

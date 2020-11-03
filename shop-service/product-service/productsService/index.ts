@@ -1,26 +1,26 @@
 import PRODUCTS_LIST from '../mockData';
 
-type ProductType = {
-    count: number,
-    description: string,
-    id: string,
-    price: number,
-    title: string
+interface Product {
+    count: number;
+    description: string;
+    id: string;
+    price: number;
+    title: string;
 };
 
 class Products {
-    private products: ProductType[] = PRODUCTS_LIST;
+    private products: Product[] = PRODUCTS_LIST;
 
-    setProductsList(data: ProductType[]): void {
+    setProductsList(data: Product[]): void {
         this.products = data;
     }
 
-    getProductsList(): ProductType[] {
+    getProductsList(): Product[] {
         return this.products;
     }
 
-    getProductById(id: string): ProductType {
-        return this.products.find((product) => product.id === id);
+    getProductById(id: string): Product {
+        return this.products.find((product: Product) => product.id === id);
     }
 }
 
