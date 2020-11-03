@@ -2,7 +2,7 @@ import ProductService from "../productsService";
 import mockData from "../mockData";
 
 describe("product service", () => {
-  const obj = new ProductService();
+  const obj = ProductService;
 
   it("getProductsList return mock data", () => {
     expect(obj.getProductsList()).toEqual(mockData);
