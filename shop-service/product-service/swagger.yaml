@@ -1,14 +1,16 @@
 openapi: 3.0.0
 info:
   title: products-service-api
-  version: v1.0
+  version: 1.0.0-oas3
+servers:
+  - url: 'https://l0bupdv27h.execute-api.eu-west-1.amazonaws.com/dev'
 paths:
-  '/products':
+  /products:
     get:
       description: Get all products
       responses:
         '200':
-          description: 'OK'
+          description: OK
           content:
             application/json:
               schema:
@@ -20,7 +22,47 @@ paths:
             application/json:
               schema:
                 type: string
-          description: 'Internal server error'
+          description: Internal server error
+    post:
+      description: Create product
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                count:
+                  type: integer
+                description:
+                  type: string
+                price:
+                  type: number
+                title:
+                  type: string
+              required: 
+                - price
+                - title
+                - description
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Created
+        '400':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Bad request
+        '500':
+          content:
+            application/json:
+              schema:
+                type: string
+          description: Internal server error
   '/products/{id}':
     get:
       description: Get product by id
@@ -33,25 +75,25 @@ paths:
           description: string id type
       responses:
         '200':
-          description: 'OK'
+          description: OK
           content:
             application/json:
               schema:
                 type: object
                 items:
                   $ref: '#/components/schemas/Product'
-        '404':
+        '400':
           content:
             application/json:
               schema:
                 type: string
-          description: 'Product not found'
+          description: Product not found
         '500':
           content:
             application/json:
               schema:
                 type: string
-          description: 'Internal server error'
+          description: Internal server error
 components:
   schemas:
     Product:
@@ -64,6 +106,10 @@ components:
         id:
           type: integer
         price:
-          type: integer
+          type: number
         title:
           type: string
+      required: 
+        - price
+        - title
+        - description
