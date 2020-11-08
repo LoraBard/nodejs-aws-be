@@ -8,7 +8,7 @@
     "sourceMap": true,
     "target": "es2017",
     "outDir": "lib",
-    "types": ["jest", "mocha"]
+    "types": ["jest"]
   },
   "include": ["./**/*.ts", "mockData/index.js"],
   "exclude": [

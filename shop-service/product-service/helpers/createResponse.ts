@@ -1,4 +1,4 @@
-const createReponse = (statusCode: number, data: object) => ({
+const createReponse = (statusCode: number, data: object | string) => ({
   statusCode,
   headers: {
     "Content-Type": "application/json"
