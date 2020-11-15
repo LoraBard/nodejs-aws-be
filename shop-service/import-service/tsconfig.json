@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "lib": ["es2017"],
+    "removeComments": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "target": "es2017",
+    "outDir": "lib",
+    "types": ["node", "jest"]
+  },
+  "include": ["./**/*.ts", "mockData/event.json"],
+  "exclude": [
+    "node_modules/**/*",
+    ".serverless/**/*",
+    ".webpack/**/*",
+    "_warmup/**/*",
+    ".vscode/**/*",
+    "**/*.test.ts"
+  ]
+}
