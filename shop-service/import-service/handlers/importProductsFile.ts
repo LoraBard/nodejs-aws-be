@@ -22,7 +22,7 @@ export const importProductsFile = async (
     }
     const catalogPath = `uploaded/${catalogName}`;
 
-    const s3 = new AWS.S3({ region: "eu-west-1" });
+    const s3 = new AWS.S3({ region: "eu-west-1", signatureVersion: "v4" });
     const params = {
       Bucket: BUCKET,
       Key: catalogPath,
