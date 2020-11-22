@@ -1,17 +1,7 @@
 import { getProductsById } from "../handlers/getProductsById";
-import mockData from "../mockData";
-import { INTERNAL_SERVER_ERROR } from "../constants";
+import * as event from '../mockData/event.json';
 
 describe("product service", () => {
-  let event;
-
-  beforeEach(() => {
-    event = {
-      pathParameters: {
-        id: mockData[0].id,
-      },
-    };
-  });
 
   it("return well-formed response", async () => {
     const response = await getProductsById(event);
@@ -21,7 +11,7 @@ describe("product service", () => {
     expect(typeof response.body).toEqual("string");
   });
 
-  it("return status code 404", async () => {
+  it("return status code 400", async () => {
     event.pathParameters = {};
     const response = await getProductsById(event);
 
@@ -44,7 +34,7 @@ describe("product service", () => {
     } catch {
       expect(response.statusCode).toEqual(500);
       expect(response.headers).toEqual({ "Content-Type": "application/json" });
-      expect(response.body).toEqual(`${INTERNAL_SERVER_ERROR}. ERROR`);
+      expect(typeof response.body).toEqual("string");
     }
   });
 });

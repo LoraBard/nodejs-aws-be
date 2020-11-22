@@ -1,0 +1,11 @@
+{
+    "pathParameters": {
+        "id": "f076c3ce-f99c-453d-840b-32e1cc82ab81"
+    },
+    "body": {
+        "title": "Polar Everest 3 Backpack",
+        "description": "This Polar Everest Backpack has your back whether on wheels or the streets",
+        "price": 43,
+        "count": 20
+    }
+}
