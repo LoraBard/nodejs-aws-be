@@ -1,0 +1,62 @@
+service: import-service
+
+frameworkVersion: '2'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-1
+  stage: dev
+  httpApi:
+    cors: true
+
+environment:
+  BUCKET: ${env:BUCKET}
+
+iamRoleStatements:
+  - Effect: "Allow"
+    Action: s3:ListBucket
+    Resource: 
+      - "arn:aws:s3:::shop-app-import-service"
+  - Effect: "Allow"
+    Action:
+      - "s3:*"
+    Resource:
+      - "arn:aws:s3:::shop-app-import-service/*"
+
+plugins:
+  - serverless-webpack
+  - serverless-dotenv-plugin
+
+custom:
+  webpack:
+    webpackConfig: webpack.config.js
+    includeModules:
+      forceExclude:
+        - aws-sdk
+  dotenv:
+    logging: false
+    include:
+      - BUCKET
+
+functions:
+  - importProductsFile:
+      handler: handlers/importProductsFile.importProductsFile
+      events:
+        - httpApi:
+            path: /import
+            method: get
+            request:
+              parametrs:
+                querystrings:
+                  name: true
+  - importFileParser:
+      handler: handlers/importFileParser.importFileParser
+      events:
+        - s3:
+          bucket: shop-app-import-service
+          event: s3:ObjectCreated:*
+          rules:
+            - prefix: uploaded/
+            - suffix: .csv
+          existing: true
