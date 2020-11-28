@@ -6,9 +6,8 @@ provider:
   name: aws
   runtime: nodejs12.x
   region: eu-west-1
-  stage: dev
-  httpApi:
-    cors: true
+  apiGateway:
+    minimumCompressionSize: 1024
 
 environment:
   BUCKET: ${env:BUCKET}
@@ -21,6 +20,37 @@ resources:
       Type: AWS::SQS::Queue
       Properties:
         QueueName: ${env:QUEUE_NAME}
+    GatewayResponseUnauthorized:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: UNAUTHORIZED
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
+    GatewayResponseAccessDenied:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: ACCESS_DENIED
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
+    GatewayResponseAuthorizerFailure:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: AUTHORIZER_FAILURE
+        StatusCode: 401
+        ResponseTemplates: 
+          application/json: "{\"message\":\"Something went wrong. Check your token\"}"
+        RestApiId: 
+          Ref: 'ApiGatewayRestApi'
+
 
 iamRoleStatements:
   - Effect: "Allow"
@@ -56,9 +86,16 @@ functions:
   - importProductsFile:
       handler: handlers/importProductsFile.importProductsFile
       events:
-        - httpApi:
+        - http:
             path: /import
             method: get
+            cors: true
+            authorizer:
+              name: basicAuthorizer
+              arn: !Sub "arn:aws:lambda:${self:provider.region}:${AWS::AccountId}:function:authorization-service-dev-basicAuthorizer"
+              resultTtlInSeconds: 0
+              identitySource: method.request.header.Authorization
+              type: token
             request:
               parametrs:
                 querystrings:
