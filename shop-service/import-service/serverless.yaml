@@ -1,4 +1,4 @@
-service: import-service
+service: shop-import-service
 
 frameworkVersion: '2'
 
@@ -12,6 +12,15 @@ provider:
 
 environment:
   BUCKET: ${env:BUCKET}
+  SQS_URL:
+    Ref: SQSQueue
+
+resources:
+  Resources:
+    SQSQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${env:QUEUE_NAME}
 
 iamRoleStatements:
   - Effect: "Allow"
@@ -19,10 +28,12 @@ iamRoleStatements:
     Resource: 
       - "arn:aws:s3:::shop-app-import-service"
   - Effect: "Allow"
-    Action:
-      - "s3:*"
+    Action: "s3:*"
     Resource:
       - "arn:aws:s3:::shop-app-import-service/*"
+  - Effect: "Allow"
+    Action: "sqs:*"
+    Resource: !GetAtt SQSQueue.Arn
 
 plugins:
   - serverless-webpack
@@ -38,6 +49,8 @@ custom:
     logging: false
     include:
       - BUCKET
+      - QUEUE_NAME
+      - SQS_URL
 
 functions:
   - importProductsFile:

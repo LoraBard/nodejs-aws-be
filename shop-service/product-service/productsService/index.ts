@@ -32,11 +32,9 @@ class Products {
         throw new CustomError(`Product with id ${id} is not found`);
       }
       return product;
-    }
-    catch(error) {
+    } catch (error) {
       throw error;
-    } 
-    finally {
+    } finally {
       client.end();
     }
   }
@@ -59,9 +57,48 @@ class Products {
         "INSERT INTO stocks (product_id, count) VALUES ($1, $2)",
         [products[0].id, count]
       );
-      
+
       await client.query("COMMIT");
       return;
+    } catch (error) {
+      await client.query("ROLLBACK");
+      throw error;
+    } finally {
+      client.end();
+    }
+  }
+
+  async uploadProducts(productsToUpload: IProduct[]): Promise<IProduct[]> {
+    const client = new Client(dbOptions);
+    const productsIds = [];
+
+    try {
+      await client.connect();
+
+      await client.query("BEGIN");
+
+      productsToUpload.forEach(async (product: IProduct) => {
+        const {
+          rows: productId,
+        } = await client.query(
+          "INSERT INTO products (description, price, title) VALUES ($1, $2, $3) RETURNING id",
+          [product.description, +product.price, product.title]
+        );
+
+        await client.query(
+          "INSERT INTO stocks (product_id, count) VALUES ($1, $2)",
+          [productId[0].id, +product.count || 0]
+        );
+
+        productsIds.push(productId[0].id);
+      });
+
+      await client.query("COMMIT");
+
+      return productsToUpload.map((product, i) => ({
+        ...product,
+        id: productsIds[i],
+      })) as any;
     } catch (error) {
       await client.query("ROLLBACK");
       throw error;

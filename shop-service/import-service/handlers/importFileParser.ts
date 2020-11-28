@@ -17,7 +17,9 @@ export const importFileParser = async (
   );
   try {
     const { BUCKET } = process.env;
-    const s3 = new AWS.S3({ region: "eu-west-1", signatureVersion: "v4" });
+    const s3 = new AWS.S3({ region: "eu-west-1" });
+    const sqs = new AWS.SQS({ region: "eu-west-1" });
+    const url = process.env.SQS_URL;
 
     await Promise.all(
       event.Records.map(async (record) => {
@@ -28,8 +30,18 @@ export const importFileParser = async (
           })
             .createReadStream()
             .pipe(csv())
-            .on("data", (data) => {
-              console.log(data);
+            .on("data", async (data) => {
+              const MessageBody = JSON.stringify(data);
+              console.log(MessageBody);
+
+              await sqs.sendMessage(
+                {
+                  QueueUrl: url,
+                  MessageBody
+                },
+                () => console.log(`Message body: ${MessageBody}`)
+              ).promise();
+      
             })
             .on("end", async () => {
               await s3
